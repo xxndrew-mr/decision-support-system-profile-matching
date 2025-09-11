@@ -32,4 +32,4 @@ Steps used in this system:
 2. Assign **weights** to each criterion (core factor vs. secondary factor).  
 3. Calculate **gap values** between candidate attributes and the ideal profile.  
 4. Generate a **final ranking score** to identify the most suitable candidate.  
-
+git
