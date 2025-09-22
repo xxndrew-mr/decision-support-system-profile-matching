@@ -291,13 +291,6 @@ if (!isset($_SESSION['username'])) {
                             <h3>Calon Karyawan</h3>
                         </a>
                     </div>
-                    <!-- Penilaian Card -->
-                    <div class="col">
-                        <a href="penilaian.php" class="card-menu">
-                            <i class="fas fa-chart-bar"></i>
-                            <h3>Penilaian</h3>
-                        </a>
-                    </div>
                     <!-- Ranking Card -->
                     <div class="col">
                         <a href="ranking.php" class="card-menu">

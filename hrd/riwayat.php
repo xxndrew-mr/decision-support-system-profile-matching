@@ -43,12 +43,10 @@ if (!empty($where)) {
             --shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
         body { background-color: var(--light-bg); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; }
-        .navbar { box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .container { margin-top: 2rem; margin-bottom: 2rem; }
         .card { border: none; border-radius: 1rem; box-shadow: var(--shadow); background-color: var(--card-bg); padding: 2.5rem; transition: all 0.3s ease-in-out; }
         .btn-primary { background-color: var(--primary-color); border-color: var(--primary-color); }
         h2 { font-weight: 700; color: #333; margin-bottom: 1.5rem; }
-        .card-header h4 { font-weight: 600; color: var(--primary-color); }
         .table { background-color: var(--card-bg); border-radius: 1rem; overflow: hidden; }
         .table thead th { background-color: #e9ecef; }
     </style>
@@ -95,8 +93,11 @@ if (!empty($where)) {
                     <?php endfor; ?>
                 </select>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-3 d-flex gap-2">
                 <button type="submit" class="btn btn-primary w-100">Filter</button>
+                <a href="hapus_riwayat.php?all=1" 
+                   onclick="return confirm('Yakin ingin menghapus SEMUA riwayat?')" 
+                   class="btn btn-danger w-100">Hapus Semua</a>
             </div>
         </form>
 
@@ -108,10 +109,11 @@ if (!empty($where)) {
         <?php endif; ?>
 
         <?php
-        $q = mysqli_query($koneksi, "SELECT hr.*, c.nama, p.nama_posisi, c.id_calon
+        $q = mysqli_query($koneksi, "SELECT hr.*, c.nama, c.id_calon, p.nama_posisi, r.nama_rekrutmen
             FROM hasil_ranking hr
             JOIN calon_karyawan c ON hr.id_calon=c.id_calon
             JOIN posisi p ON hr.id_posisi=p.id_posisi
+            LEFT JOIN rekrutmen r ON c.id_rekrutmen = r.id_rekrutmen
             WHERE hr.is_history=1 $where_sql
             ORDER BY hr.created_at DESC, p.nama_posisi, hr.peringkat");
 
@@ -141,6 +143,7 @@ if (!empty($where)) {
                                         <th>Calon</th>
                                         <th>Peringkat</th>
                                         <th>Total Nilai</th>
+                                        <th>Batch Rekrutmen</th>
                                         <th>Status Validasi</th>
                                         <th>Aksi</th>
                                     </tr>
@@ -157,6 +160,7 @@ if (!empty($where)) {
                                             </td>
                                             <td><?= htmlspecialchars($r['peringkat']) ?></td>
                                             <td><?= number_format($r['total_nilai'], 2) ?></td>
+                                            <td><?= htmlspecialchars($r['nama_rekrutmen'] ?: '-') ?></td>
                                             <td><?= htmlspecialchars($r['validasi_owner']) ?></td>
                                             <td class="actions-cell">
                                                 <a href="hapus_riwayat.php?id=<?= htmlspecialchars($r['id_hasil']) ?>" 

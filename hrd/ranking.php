@@ -58,7 +58,6 @@ if (isset($_POST['hapus_posisi'])) {
     <!-- Navigation Menu -->
     <ul class="nav nav-tabs justify-content-center mb-4">
         <li class="nav-item"><a class="nav-link" href="calon.php"><i class="fas fa-user-tie"></i> Calon Karyawan</a></li>
-        <li class="nav-item"><a class="nav-link" href="penilaian.php"><i class="fas fa-chart-bar"></i> Penilaian</a></li>
         <li class="nav-item"><a class="nav-link active" href="ranking.php"><i class="fas fa-trophy"></i> Hasil Ranking</a></li>
         <li class="nav-item"><a class="nav-link text-danger" href="../logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         <li class="nav-item"><a class="nav-link" href="dashboard.php"><i class="fas fa-arrow-left"></i> Kembali ke Dashboard</a></li>

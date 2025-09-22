@@ -5,7 +5,7 @@ require_role('HRD');
 
 if (isset($_GET['id'])) {
     $id = intval($_GET['id']);
-    mysqli_query($koneksi, "DELETE FROM riwayat_ranking WHERE id_riwayat='$id'");
+    mysqli_query($koneksi, "DELETE FROM hasil_ranking WHERE id_hasil='$id' AND is_history=1");
     header("Location: riwayat.php?msg=Data berhasil dihapus");
     exit;
 } else {

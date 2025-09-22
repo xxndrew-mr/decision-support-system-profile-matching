@@ -144,11 +144,6 @@ while ($row = mysqli_fetch_assoc($result)) {
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="hrd/penilaian.php">
-                <i class="fas fa-chart-bar"></i> Penilaian
-            </a>
-        </li>
-        <li class="nav-item">
             <a class="nav-link" href="hrd/ranking.php">
                 <i class="fas fa-trophy"></i> Proses Ranking
             </a>
