@@ -14,6 +14,14 @@ function map_gap($gap) {
     return $map[$gap] ?? 1.0;
 }
 
+// Cari batch (rekrutmen) aktif berdasarkan tanggal hari ini
+$rekrutmen_q = mysqli_query($koneksi, "SELECT id_rekrutmen 
+    FROM rekrutmen 
+    WHERE CURDATE() BETWEEN tanggal_mulai AND tanggal_selesai
+    ORDER BY id_rekrutmen DESC LIMIT 1");
+$rekrutmen = mysqli_fetch_assoc($rekrutmen_q);
+$id_rekrutmen = $rekrutmen ? (int)$rekrutmen['id_rekrutmen'] : "NULL";
+
 // Ambil semua posisi yang sudah ada penilaian
 $posisi_q = mysqli_query($koneksi, "SELECT DISTINCT p.id_posisi 
     FROM posisi p 
@@ -71,12 +79,13 @@ while ($p = mysqli_fetch_assoc($posisi_q)) {
     usort($hasil, fn($a,$b) => $b['total'] <=> $a['total']);
     
     // Hapus data lama untuk posisi ini saja
-    mysqli_query($koneksi, "DELETE FROM hasil_ranking WHERE id_posisi=$id_posisi");
+    mysqli_query($koneksi, "DELETE FROM hasil_ranking WHERE id_posisi=$id_posisi AND is_history=0");
     
     $rank = 1;
     foreach ($hasil as $h) {
-        mysqli_query($koneksi, "INSERT INTO hasil_ranking(id_calon,id_posisi,total_nilai,peringkat,validasi_owner) 
-            VALUES({$h['id_calon']},$id_posisi,{$h['total']},$rank,'Pending')");
+        mysqli_query($koneksi, "INSERT INTO hasil_ranking
+            (id_calon,id_posisi,id_rekrutmen,total_nilai,peringkat,validasi_owner,is_history,created_at) 
+            VALUES({$h['id_calon']},$id_posisi,$id_rekrutmen,{$h['total']},$rank,'Pending',0,NOW())");
         $rank++;
     }
 }

@@ -9,6 +9,7 @@ $kriteria = [];
 $qk = mysqli_query($koneksi, "SELECT * FROM kriteria ORDER BY id_kriteria");
 while ($row = mysqli_fetch_assoc($qk)) $kriteria[] = $row;
 
+
 // CRUD Rekrutmen (Batch)
 if (isset($_POST['aksi'])) {
     if ($_POST['aksi'] === 'tambah_batch') {
@@ -256,18 +257,16 @@ $calon = mysqli_query($koneksi, "SELECT ck.*, r.nama_rekrutmen
 
 <!-- Modal Kelola Batch --> 
  <div class="modal fade" id="batchModal" tabindex="-1"> <div class="modal-dialog modal-lg"><div class="modal-content"> <div class="modal-header"><h5 class="modal-title">Kelola Batch Rekrutmen</h5><button class="btn-close" data-bs-dismiss="modal"></button></div> <div class="modal-body"> <!-- Form tambah batch --> <form method="post" class="mb-3"> <input type="hidden" name="aksi" value="tambah_batch"> <div class="row g-2"> <div class="col-md-4"><input name="nama_rekrutmen" class="form-control" placeholder="Nama Batch" required></div> <div class="col-md-3"><input type="date" name="tanggal_mulai" class="form-control" required></div> <div class="col-md-3"><input type="date" name="tanggal_selesai" class="form-control"></div> <div class="col-md-2"><button class="btn btn-primary w-100"><i class="fas fa-plus"></i> Tambah</button></div> </div> </form> <!-- Tabel batch --> <table class="table table-bordered"> <thead><tr><th>ID</th><th>Nama</th><th>Mulai</th><th>Selesai</th><th>Aksi</th></tr></thead> <tbody> <?php mysqli_data_seek($rekrutmen,0); while($b = mysqli_fetch_assoc($rekrutmen)): ?> <tr> <td><?= $b['id_rekrutmen'] ?></td> <td><?= htmlspecialchars($b['nama_rekrutmen']) ?></td> <td><?= $b['tanggal_mulai'] ?></td> <td><?= $b['tanggal_selesai'] ?></td> <td> <!-- Edit batch --> <form method="post" class="d-inline"> <input type="hidden" name="aksi" value="edit_batch"> <input type="hidden" name="id_rekrutmen" value="<?= $b['id_rekrutmen'] ?>"> <input type="hidden" name="nama_rekrutmen" value="<?= htmlspecialchars($b['nama_rekrutmen']) ?>"> <input type="hidden" name="tanggal_mulai" value="<?= $b['tanggal_mulai'] ?>"> <input type="hidden" name="tanggal_selesai" value="<?= $b['tanggal_selesai'] ?>"> <button class="btn btn-sm btn-info text-white"><i class="fas fa-edit"></i></button> </form> <a href="?hapus_batch=<?= $b['id_rekrutmen'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Hapus batch ini?')"><i class="fas fa-trash"></i></a> </td> </tr> <?php endwhile; ?> </tbody> </table> </div> </div></div> </div>
-
-
+  
     <div class="table-responsive">
       <table class="table table-striped align-middle">
         <thead>
-          <tr><th>ID</th><th>Nama</th><th>No HP</th><th>Email</th><th>Alamat</th>
+          <tr><th>Nama</th><th>No HP</th><th>Email</th><th>Alamat</th>
               <th>Batch</th><th>Posisi & Penilaian</th><th>Aksi</th></tr>
         </thead>
         <tbody>
         <?php while($r = mysqli_fetch_assoc($calon)): ?>
           <tr>
-            <td><?= $r['id_calon'] ?></td>
             <td><?= htmlspecialchars($r['nama']) ?></td>
             <td><?= htmlspecialchars($r['no_hp']) ?></td>
             <td><?= htmlspecialchars($r['email']) ?></td>

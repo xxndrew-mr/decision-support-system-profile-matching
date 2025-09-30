@@ -3,6 +3,14 @@ require_once __DIR__ . "/koneksi.php";
 require_once __DIR__ . "/partials/auth.php";
 require_role('HRD');
 
+// Ambil batch (rekrutmen) aktif berdasarkan tanggal hari ini
+$rekrutmen = mysqli_query($koneksi, "SELECT id_rekrutmen 
+    FROM rekrutmen 
+    WHERE CURDATE() BETWEEN tanggal_mulai AND tanggal_selesai
+    ORDER BY id_rekrutmen DESC LIMIT 1");
+$r = mysqli_fetch_assoc($rekrutmen);
+$id_rekrutmen = $r ? (int)$r['id_rekrutmen'] : "NULL";
+
 // Ambil semua hasil ranking terbaru (is_history=0)
 $q = mysqli_query($koneksi, "SELECT * FROM hasil_ranking WHERE is_history=0");
 
@@ -25,8 +33,8 @@ while($row = mysqli_fetch_assoc($q)) {
 
     if (mysqli_num_rows($cek) == 0) {
         mysqli_query($koneksi, "INSERT INTO hasil_ranking
-            (id_calon, id_posisi, total_nilai, peringkat, validasi_owner, created_at, is_history)
-            VALUES ($id_calon, $id_posisi, $total, $peringkat, '$validasi', NOW(), 1)");
+            (id_calon, id_posisi, id_rekrutmen, total_nilai, peringkat, validasi_owner, created_at, is_history)
+            VALUES ($id_calon, $id_posisi, $id_rekrutmen, $total, $peringkat, '$validasi', NOW(), 1)");
     }
 }
 

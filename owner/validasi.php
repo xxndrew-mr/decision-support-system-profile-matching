@@ -3,61 +3,79 @@ require_once __DIR__ . "/../koneksi.php";
 require_once __DIR__ . "/../partials/auth.php";
 require_role('Owner');
 
-// Ambil daftar posisi
+// Ambil daftar posisi untuk filter
 $posisi = mysqli_query($koneksi, "SELECT * FROM posisi ORDER BY id_posisi");
 $selected = isset($_GET['id_posisi']) ? (int)$_GET['id_posisi'] : 0;
 
+// =================================================================
+// PERUBAHAN 1: Ambil daftar kriteria untuk header tabel dinamis
+// =================================================================
+$kriteria_query = mysqli_query($koneksi, "SELECT id_kriteria, nama_kriteria FROM kriteria ORDER BY id_kriteria");
+$kriteria_list = [];
+while ($k = mysqli_fetch_assoc($kriteria_query)) {
+    $kriteria_list[] = $k;
+}
+
 // Query hasil ranking (hanya data aktif, tidak termasuk history)
-$sql = "SELECT 
-            hr.id_hasil,
-            hr.id_posisi,
-            hr.id_calon,
-            hr.peringkat,
-            hr.total_nilai,
-            hr.validasi_owner,
-            c.nama,
-            p.nama_posisi
+$sql = "SELECT
+            hr.id_hasil, hr.id_posisi, hr.id_calon, hr.peringkat,
+            hr.total_nilai, hr.validasi_owner, c.nama, p.nama_posisi, r.nama_rekrutmen
         FROM hasil_ranking hr
         JOIN calon_karyawan c ON c.id_calon = hr.id_calon
         JOIN posisi p ON p.id_posisi = hr.id_posisi
-        WHERE hr.is_history = 0";  // <-- filter penting
+        LEFT JOIN rekrutmen r ON r.id_rekrutmen = hr.id_rekrutmen
+        WHERE hr.is_history = 0";
 
 if ($selected) $sql .= " AND hr.id_posisi=$selected";
 
 $sql .= " ORDER BY p.id_posisi, hr.peringkat";
-
 $hasil = mysqli_query($koneksi, $sql);
 
 // Proses validasi
 if (isset($_POST['aksi']) && isset($_POST['id_hasil'])) {
     $id_hasil = (int)$_POST['id_hasil'];
     $status = $_POST['aksi'] === 'setujui' ? 'Disetujui' : 'Ditolak';
-    mysqli_query($koneksi, "UPDATE hasil_ranking SET validasi_owner='$status' WHERE id_hasil=$id_hasil");
+    $id_owner = $_SESSION['id_user'];
+    mysqli_query($koneksi, "UPDATE hasil_ranking SET validasi_owner='$status', validated_by=$id_owner WHERE id_hasil=$id_hasil");
     header("Location: validasi.php?id_posisi=" . $selected);
     exit;
 }
-?>
 
+// =========================================================================================
+// PERUBAHAN 2: Ambil semua data penilaian untuk posisi ini dalam satu query (lebih efisien)
+// =========================================================================================
+$penilaian_query = mysqli_query($koneksi, "SELECT p.id_calon, p.id_posisi, p.id_kriteria, p.nilai
+    FROM penilaian p
+    JOIN hasil_ranking hr ON p.id_calon = hr.id_calon AND p.id_posisi = hr.id_posisi
+    WHERE hr.is_history = 0");
+
+$nilai_per_calon = [];
+while ($nilai_row = mysqli_fetch_assoc($penilaian_query)) {
+    // Struktur data: $nilai_per_calon[id_calon][id_posisi][id_kriteria] = nilai
+    $nilai_per_calon[$nilai_row['id_calon']][$nilai_row['id_posisi']][$nilai_row['id_kriteria']] = $nilai_row['nilai'];
+}
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Owner - Validasi Ranking</title>
+    <title>Owner - Validasi Ranking Rinci</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #f8f9fa; }
         .header { background-color: #007bff; color: white; padding: 2rem 1rem; text-align: center; margin-bottom: 2rem; }
         .header h1 { margin-bottom: 0.5rem; }
-        .container { max-width: 1200px; }
+        .container { max-width: 1400px; } /* Lebarkan container untuk menampung kolom baru */
         .card-custom { border: none; border-radius: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 2rem; }
-        .table-custom th, .table-custom td { vertical-align: middle; }
+        .table-custom th, .table-custom td { vertical-align: middle; text-align: center; }
+        .table-custom th:nth-child(3), .table-custom td:nth-child(3) { text-align: left; }
         .table-custom tbody tr:hover { background-color: #f1f1f1; }
         .btn-custom { border-radius: 50rem; padding: .5rem 1.5rem; }
         .btn-logout { background-color: #dc3545; color: white; border-radius: 50rem; }
         .btn-logout:hover { background-color: #c82333; color: white; }
         .footer { text-align: center; padding: 1rem; color: #6c757d; font-size: 0.9rem; }
-        .badge-info { background-color: #17a2b8; }
+        .badge-info, .badge-warning { background-color: #17a2b8; }
         .badge-success { background-color: #28a745; }
         .badge-danger { background-color: #dc3545; }
     </style>
@@ -74,7 +92,7 @@ if (isset($_POST['aksi']) && isset($_POST['id_hasil'])) {
                 <label class="form-label me-2 mb-0 fw-bold text-nowrap">Filter Posisi:</label>
                 <select name="id_posisi" class="form-select" onchange="this.form.submit()">
                     <option value="0">Semua Posisi</option>
-                    <?php while($p = mysqli_fetch_assoc($posisi)): ?>
+                    <?php mysqli_data_seek($posisi, 0); while($p = mysqli_fetch_assoc($posisi)): ?>
                         <option value="<?= $p['id_posisi'] ?>" <?= $selected == $p['id_posisi'] ? "selected" : "" ?>>
                             <?= htmlspecialchars($p['nama_posisi']) ?>
                         </option>
@@ -99,23 +117,32 @@ if (isset($_POST['aksi']) && isset($_POST['id_hasil'])) {
                             <tr>
                                 <th>Posisi</th>
                                 <th>Peringkat</th>
-                                <th>Calon</th>
+                                <th>Nama Calon</th>
+                                <?php foreach ($kriteria_list as $k): ?>
+                                    <th><?= htmlspecialchars($k['nama_kriteria']); ?></th>
+                                <?php endforeach; ?>
                                 <th>Total Nilai</th>
                                 <th>Status</th>
+                                <th>Batch</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php if (mysqli_num_rows($hasil) > 0): ?>
-                                <?php while($r = mysqli_fetch_assoc($hasil)): ?>
+                                <?php mysqli_data_seek($hasil, 0); while($r = mysqli_fetch_assoc($hasil)): ?>
                                     <tr>
                                         <td><?= htmlspecialchars($r['nama_posisi']); ?></td>
-                                        <td><?= $r['peringkat']; ?></td>
+                                        <td><strong><?= $r['peringkat']; ?></strong></td>
                                         <td><?= htmlspecialchars($r['nama']); ?></td>
+                                        <?php foreach ($kriteria_list as $k):
+                                            $nilai = $nilai_per_calon[$r['id_calon']][$r['id_posisi']][$k['id_kriteria']] ?? '-';
+                                        ?>
+                                            <td><?= $nilai ?></td>
+                                        <?php endforeach; ?>
                                         <td><?= number_format($r['total_nilai'], 2); ?></td>
                                         <td>
                                             <?php
-                                                $badge_class = 'badge-info';
+                                                $badge_class = 'badge-warning';
                                                 if ($r['validasi_owner'] == 'Disetujui') $badge_class = 'badge-success';
                                                 elseif ($r['validasi_owner'] == 'Ditolak') $badge_class = 'badge-danger';
                                             ?>
@@ -123,14 +150,15 @@ if (isset($_POST['aksi']) && isset($_POST['id_hasil'])) {
                                                 <?= htmlspecialchars($r['validasi_owner']); ?>
                                             </span>
                                         </td>
+                                        <td><?= $r['nama_rekrutmen'] ? htmlspecialchars($r['nama_rekrutmen']) : '-' ?></td>
                                         <td>
                                             <form method="post" class="d-flex gap-2">
                                                 <input type="hidden" name="id_hasil" value="<?= $r['id_hasil']; ?>" />
-                                                <button class="btn btn-sm btn-success" type="submit" name="aksi" value="setujui">
-                                                    <i class="fas fa-check me-1"></i>Setujui
+                                                <button class="btn btn-sm btn-success" type="submit" name="aksi" value="setujui" title="Setujui">
+                                                    <i class="fas fa-check"></i>
                                                 </button>
-                                                <button class="btn btn-sm btn-danger" type="submit" name="aksi" value="tolak">
-                                                    <i class="fas fa-times me-1"></i>Tolak
+                                                <button class="btn btn-sm btn-danger" type="submit" name="aksi" value="tolak" title="Tolak">
+                                                    <i class="fas fa-times"></i>
                                                 </button>
                                             </form>
                                         </td>
@@ -138,7 +166,7 @@ if (isset($_POST['aksi']) && isset($_POST['id_hasil'])) {
                                 <?php endwhile; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="6" class="text-center text-muted">Tidak ada data hasil ranking.</td>
+                                    <td colspan="<?= 7 + count($kriteria_list) ?>" class="text-center text-muted">Tidak ada data hasil ranking.</td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>
@@ -149,7 +177,7 @@ if (isset($_POST['aksi']) && isset($_POST['id_hasil'])) {
     </div>
 
     <footer class="footer">
-        <p>&copy; 2023 SPK Karyawan • Hak Cipta Dilindungi</p>
+        <p>&copy; <?= date('Y') ?> SPK Karyawan • Hak Cipta Dilindungi</p>
     </footer>
 </body>
 </html>
