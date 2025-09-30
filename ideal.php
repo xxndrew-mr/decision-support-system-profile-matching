@@ -1,8 +1,10 @@
 <?php
-include "koneksi.php";
+// Ganti nama file sesuai dengan nama file Anda, misal: ideal.php
+require_once "koneksi.php"; 
+// Sesuaikan path jika file ini ada di dalam folder, contoh: require_once __DIR__ . "/../koneksi.php";
 session_start();
 
-if(!isset($_SESSION['role']) || $_SESSION['role'] != 'HRD'){
+if(!isset($_SESSION['role']) || ($_SESSION['role'] != 'HRD' && $_SESSION['role'] != 'Owner')){
     header("Location: login.php");
     exit;
 }
@@ -32,215 +34,135 @@ while ($row = mysqli_fetch_assoc($result)) {
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Profile Ideal</title>
+    <title>HRD - Data Profile Ideal</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary-color: #0d6efd;
-            --secondary-color: #6c757d;
-            --light-bg: #f0f2f5;
-            --card-bg: #fff;
-            --shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            --gradient-blue: linear-gradient(135deg, #0d6efd, #0056b3);
+            --light-bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+            --text-dark: #212529;
+            --text-light: #6c757d;
         }
-        body {
-            background-color: var(--light-bg);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        body { background-color: var(--light-bg); font-family: 'Segoe UI', 'Roboto', sans-serif; }
+        .main-card {
+            border: none; border-radius: 1.25rem; box-shadow: var(--shadow);
+            background-color: var(--card-bg); padding: 2.5rem;
         }
-        .container {
-            margin-top: 2rem;
-            margin-bottom: 2rem;
+        .nav-pills .nav-link {
+            border-radius: 0.75rem;
+            font-weight: 500;
         }
-        .card {
-            border: none;
-            border-radius: 1.5rem;
-            box-shadow: var(--shadow);
-            background-color: var(--card-bg);
-            padding: 2.5rem;
-        }
-        h2 {
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 1.5rem;
-        }
-        .nav-link.active {
-            font-weight: bold;
-            color: #0d6efd !important;
-        }
-        .nav-link {
-            color: #495057;
-        }
-        .nav-link:hover {
-            color: #0d6efd;
-        }
-        .btn-link {
-            text-decoration: none;
-            color: #0d6efd;
-        }
-        .btn-link:hover {
-            text-decoration: underline;
-        }
-        .btn-custom {
-            border-radius: 2rem;
-            font-weight: 600;
-            padding: 0.75rem 2rem;
-            transition: transform 0.2s, box-shadow 0.2s;
-            background: var(--gradient-blue);
-            border: none;
-            color: #fff;
-        }
-        .btn-custom:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-        }
-        .form-control {
-            border-radius: 1rem;
-            padding: 0.75rem 1.25rem;
-            border: 1px solid #ddd;
-            transition: all 0.3s;
-        }
-        .form-control:focus {
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-            border-color: var(--primary-color);
-        }
-        .table-custom {
-            border-radius: 1rem;
-            overflow: hidden;
-            border: 1px solid #dee2e6;
-        }
-        .table-custom thead {
+        .nav-pills .nav-link.active {
             background-color: var(--primary-color);
+            box-shadow: 0 4px 15px rgba(13, 110, 253, 0.4);
+        }
+        .accordion-item {
+            border: none; border-radius: 1rem !important; margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+        .accordion-button {
+            border-radius: 1rem !important; background-color: var(--card-bg);
+            font-size: 1.15rem; font-weight: 600; color: var(--text-dark);
+        }
+        .accordion-button:not(.collapsed) {
+            box-shadow: none; background-color: var(--primary-color);
             color: #fff;
         }
-        .table-custom th, .table-custom td {
-            vertical-align: middle;
-            text-align: center;
-            padding: 1rem;
+        .accordion-button:focus { box-shadow: none; }
+        .accordion-button::after {
+             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23212529'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
         }
-        .table-custom tbody tr:nth-child(even) {
-            background-color: var(--light-bg);
+        .accordion-button:not(.collapsed)::after {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23ffffff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
         }
-        .table-custom tbody tr:hover {
-            background-color: #e9ecef;
-        }
-        .btn-back {
-            color: var(--primary-color);
-            font-weight: 600;
-            text-decoration: none;
-        }
-        .btn-back:hover {
-            text-decoration: underline;
-        }
+        .accordion-body { padding: 1.5rem; }
+        .table-ideal th { width: 50%; }
+        .footer { margin-top:3rem; text-align:center; color: var(--text-light); }
     </style>
 </head>
 <body>
-<div class="container">
-    <!-- Navigation Menu -->
-    <ul class="nav nav-tabs justify-content-center mb-4">
-        <li class="nav-item">
-            <a class="nav-link" href="hrd/calon.php">
-                <i class="fas fa-user-tie"></i> Calon Karyawan
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="hrd/ranking.php">
-                <i class="fas fa-trophy"></i> Proses Ranking
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link text-danger" href="logout.php">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="hrd/dashboard.php">
-                <i class="fas fa-arrow-left"></i> Kembali ke Dashboard
-            </a>
-        </li>
+<div class="container my-4">
+    <ul class="nav nav-pills mb-4 justify-content-center">
+        <li class="nav-item"><a class="nav-link" href="hrd/dashboard.php"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="hrd/calon.php"><i class="fas fa-user-plus me-2"></i>Calon Karyawan</a></li>
+        <li class="nav-item"><a class="nav-link active" href="ideal.php"><i class="fas fa-cogs me-2"></i>Profil Ideal</a></li>
+        <li class="nav-item"><a class="nav-link text-danger" href="logout.php"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
     </ul>
 
-    <div class="card">
-        <h2 class="text-center">Data Profile Ideal</h2>
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <a href="profile_ideal.php" class="btn btn-custom">
-                <i class="fas fa-plus-circle"></i> Tambah/Update
-            </a>
-            <div class="col-md-4">
-                <input type="text" id="searchInput" class="form-control" placeholder="Cari data..." aria-label="Search">
+    <div class="main-card">
+        <div class="row mb-4 align-items-center">
+            <div class="col-md-6">
+                <h2 class="mb-0">Data Profil Ideal</h2>
+                <p class="text-muted">Standar nilai yang dibutuhkan untuk setiap posisi.</p>
+            </div>
+            <div class="col-md-6 d-flex gap-2 justify-content-md-end">
+                <input type="text" id="searchInput" class="form-control w-50" placeholder="Cari posisi...">
+                <a href="profile_ideal.php" class="btn btn-primary">
+                    <i class="fas fa-edit me-2"></i> Kelola Nilai
+                </a>
             </div>
         </div>
         
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover table-custom" id="profileTable">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Posisi</th>
-                        <th>Kriteria</th>
-                        <th>Nilai Ideal</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($grouped_data as $posisi => $kriteria_list): ?>
-                        <tr>
-                            <td rowspan="<?= count($kriteria_list) ?>"><?= htmlspecialchars($posisi) ?></td>
-                            <td><?= htmlspecialchars($kriteria_list[0]['nama_kriteria']) ?></td>
-                            <td><?= htmlspecialchars($kriteria_list[0]['nilai_ideal']) ?></td>
-                        </tr>
-                        <?php for ($i = 1; $i < count($kriteria_list); $i++): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($kriteria_list[$i]['nama_kriteria']) ?></td>
-                                <td><?= htmlspecialchars($kriteria_list[$i]['nilai_ideal']) ?></td>
-                            </tr>
-                        <?php endfor; ?>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+        <div class="accordion" id="profileAccordion">
+            <?php if (empty($grouped_data)): ?>
+                <div class="alert alert-warning text-center">Belum ada data profil ideal yang diatur.</div>
+            <?php else: $i = 0; ?>
+                <?php foreach ($grouped_data as $posisi => $kriteria_list): $i++; ?>
+                    <div class="accordion-item" data-search-term="<?= strtolower(htmlspecialchars($posisi)) ?>">
+                        <h2 class="accordion-header" id="heading-<?= $i ?>">
+                            <button class="accordion-button <?= $i > 1 ? 'collapsed' : '' ?>" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-<?= $i ?>">
+                                <?= htmlspecialchars($posisi) ?>
+                            </button>
+                        </h2>
+                        <div id="collapse-<?= $i ?>" class="accordion-collapse collapse <?= $i == 1 ? 'show' : '' ?>" data-bs-parent="#profileAccordion">
+                            <div class="accordion-body">
+                                <table class="table table-bordered table-hover table-ideal">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Kriteria</th>
+                                            <th>Nilai Ideal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($kriteria_list as $item): ?>
+                                            <tr>
+                                                <td><?= htmlspecialchars($item['nama_kriteria']) ?></td>
+                                                <td><span class="badge bg-primary fs-6"><?= htmlspecialchars($item['nilai_ideal']) ?></span></td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
+
     </div>
+    <footer class="footer"><p>&copy; <?= date('Y') ?> HRD Panel • SPK Profile Matching</p></footer>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.getElementById('searchInput');
-        const table = document.getElementById('profileTable');
-        const rows = table.getElementsByTagName('tr');
+        const accordionItems = document.querySelectorAll('.accordion-item');
 
         searchInput.addEventListener('keyup', function(event) {
             const filter = event.target.value.toLowerCase();
-            const parentRows = Array.from(table.querySelectorAll('tbody tr'));
-            
-            parentRows.forEach(row => {
-                const rowText = row.innerText.toLowerCase();
-                if (rowText.indexOf(filter) > -1) {
-                    row.style.display = "";
+
+            accordionItems.forEach(item => {
+                const searchTerm = item.dataset.searchTerm;
+                if (searchTerm.includes(filter)) {
+                    item.style.display = 'block';
                 } else {
-                    row.style.display = "none";
+                    item.style.display = 'none';
                 }
             });
-
-            // Adjust rowspan for visibility after filtering
-            const visibleRows = parentRows.filter(row => row.style.display !== "none");
-            const visiblePositions = {};
-            
-            visibleRows.forEach(row => {
-                const positionCell = row.querySelector('td[rowspan]');
-                if (positionCell) {
-                    const positionName = positionCell.textContent.trim();
-                    if (visiblePositions[positionName]) {
-                        visiblePositions[positionName].count++;
-                    } else {
-                        visiblePositions[positionName] = { element: positionCell, count: 1 };
-                    }
-                }
-            });
-
-            // Reset all rowspans and then set them correctly
-            table.querySelectorAll('td[rowspan]').forEach(cell => cell.removeAttribute('rowspan'));
-            for (const pos in visiblePositions) {
-                visiblePositions[pos].element.setAttribute('rowspan', visiblePositions[pos].count);
-            }
         });
     });
 </script>

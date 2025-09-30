@@ -59,25 +59,89 @@ while ($nilai_row = mysqli_fetch_assoc($penilaian_query)) {
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Owner - Validasi Ranking Rinci</title>
+    <title>Owner - Validasi Hasil Ranking</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #f8f9fa; }
-        .header { background-color: #007bff; color: white; padding: 2rem 1rem; text-align: center; margin-bottom: 2rem; }
-        .header h1 { margin-bottom: 0.5rem; }
-        .container { max-width: 1400px; } /* Lebarkan container untuk menampung kolom baru */
-        .card-custom { border: none; border-radius: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 2rem; }
-        .table-custom th, .table-custom td { vertical-align: middle; text-align: center; }
-        .table-custom th:nth-child(3), .table-custom td:nth-child(3) { text-align: left; }
-        .table-custom tbody tr:hover { background-color: #f1f1f1; }
-        .btn-custom { border-radius: 50rem; padding: .5rem 1.5rem; }
-        .btn-logout { background-color: #dc3545; color: white; border-radius: 50rem; }
-        .btn-logout:hover { background-color: #c82333; color: white; }
-        .footer { text-align: center; padding: 1rem; color: #6c757d; font-size: 0.9rem; }
-        .badge-info, .badge-warning { background-color: #17a2b8; }
-        .badge-success { background-color: #28a745; }
-        .badge-danger { background-color: #dc3545; }
+        :root {
+            --primary-color: #0d6efd;
+            --light-bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+            --gradient-primary: linear-gradient(135deg, #0d6efd 0%, #4dabf7 100%);
+        }
+        
+        body { background-color: var(--light-bg); font-family: 'Segoe UI', 'Roboto', sans-serif; }
+
+        .header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 2.5rem 1rem 4rem 1rem;
+            text-align: center;
+            border-bottom-left-radius: 2rem;
+            border-bottom-right-radius: 2rem;
+        }
+
+        .header h1 { font-weight: 700; margin-bottom: 0.5rem; }
+        .header h4 { font-weight: 300; opacity: 0.9; }
+
+        .container { max-width: 1600px; margin-top: -2.5rem; position: relative; z-index: 10;}
+        
+        .main-card {
+            border: none;
+            border-radius: 1.25rem;
+            box-shadow: var(--shadow);
+            background-color: var(--card-bg);
+            padding: 2rem;
+        }
+
+        .filter-bar {
+             background-color: #f1f3f5;
+             padding: 1rem 1.5rem;
+             border-radius: 1rem;
+        }
+
+        .table {
+            border-collapse: separate;
+            border-spacing: 0 0.75rem;
+        }
+        .table th, .table td {
+            border: none;
+            vertical-align: middle;
+            text-align: center;
+            padding: 1rem;
+        }
+        .table thead th {
+            border-bottom: 2px solid #dee2e6;
+        }
+        .table tbody tr {
+            background-color: #fff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .table tbody tr:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+        .table td:first-child { border-top-left-radius: 0.75rem; border-bottom-left-radius: 0.75rem; }
+        .table td:last-child { border-top-right-radius: 0.75rem; border-bottom-right-radius: 0.75rem; }
+
+        .rank-badge {
+            display: inline-block;
+            width: 35px;
+            height: 35px;
+            line-height: 35px;
+            border-radius: 50%;
+            font-weight: 700;
+            color: #fff;
+            background-color: #6c757d;
+        }
+        .rank-badge.rank-1 { background-color: #ffc107; color: #212529; }
+        .rank-badge.rank-2 { background-color: #ced4da; color: #212529; }
+        .rank-badge.rank-3 { background-color: #cd7f32; }
+
+        .footer { text-align: center; padding: 2rem; color: #6c757d; font-size: 0.9rem; }
     </style>
 </head>
 <body>
@@ -87,97 +151,109 @@ while ($nilai_row = mysqli_fetch_assoc($penilaian_query)) {
     </header>
 
     <div class="container">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3">
-            <form method="get" class="d-flex align-items-center flex-grow-1">
-                <label class="form-label me-2 mb-0 fw-bold text-nowrap">Filter Posisi:</label>
-                <select name="id_posisi" class="form-select" onchange="this.form.submit()">
-                    <option value="0">Semua Posisi</option>
-                    <?php mysqli_data_seek($posisi, 0); while($p = mysqli_fetch_assoc($posisi)): ?>
-                        <option value="<?= $p['id_posisi'] ?>" <?= $selected == $p['id_posisi'] ? "selected" : "" ?>>
-                            <?= htmlspecialchars($p['nama_posisi']) ?>
-                        </option>
-                    <?php endwhile; ?>
-                </select>
-            </form>
-            <div class="d-flex gap-2">
-                <a href="ganti_password.php" class="btn btn-primary btn-custom">Ganti Password</a>
-                <a href="kelola_hrd.php" class="btn btn-secondary btn-custom">Kelola HRD</a>
-                <a class="btn btn-logout btn-custom" href="../logout.php">
-                    <i class="fas fa-sign-out-alt me-2"></i>Logout
-                </a>
-            </div>
-        </div>
-
-        <div class="card card-custom">
-            <div class="card-body">
-                <h2 class="text-center mb-4">Hasil Ranking</h2>
-                <div class="table-responsive">
-                    <table class="table table-hover table-custom">
-                        <thead class="bg-light">
-                            <tr>
-                                <th>Posisi</th>
-                                <th>Peringkat</th>
-                                <th>Nama Calon</th>
-                                <?php foreach ($kriteria_list as $k): ?>
-                                    <th><?= htmlspecialchars($k['nama_kriteria']); ?></th>
-                                <?php endforeach; ?>
-                                <th>Total Nilai</th>
-                                <th>Status</th>
-                                <th>Batch</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (mysqli_num_rows($hasil) > 0): ?>
-                                <?php mysqli_data_seek($hasil, 0); while($r = mysqli_fetch_assoc($hasil)): ?>
-                                    <tr>
-                                        <td><?= htmlspecialchars($r['nama_posisi']); ?></td>
-                                        <td><strong><?= $r['peringkat']; ?></strong></td>
-                                        <td><?= htmlspecialchars($r['nama']); ?></td>
-                                        <?php foreach ($kriteria_list as $k):
-                                            $nilai = $nilai_per_calon[$r['id_calon']][$r['id_posisi']][$k['id_kriteria']] ?? '-';
-                                        ?>
-                                            <td><?= $nilai ?></td>
-                                        <?php endforeach; ?>
-                                        <td><?= number_format($r['total_nilai'], 2); ?></td>
-                                        <td>
-                                            <?php
-                                                $badge_class = 'badge-warning';
-                                                if ($r['validasi_owner'] == 'Disetujui') $badge_class = 'badge-success';
-                                                elseif ($r['validasi_owner'] == 'Ditolak') $badge_class = 'badge-danger';
-                                            ?>
-                                            <span class="badge <?= $badge_class; ?>">
-                                                <?= htmlspecialchars($r['validasi_owner']); ?>
-                                            </span>
-                                        </td>
-                                        <td><?= $r['nama_rekrutmen'] ? htmlspecialchars($r['nama_rekrutmen']) : '-' ?></td>
-                                        <td>
-                                            <form method="post" class="d-flex gap-2">
-                                                <input type="hidden" name="id_hasil" value="<?= $r['id_hasil']; ?>" />
-                                                <button class="btn btn-sm btn-success" type="submit" name="aksi" value="setujui" title="Setujui">
-                                                    <i class="fas fa-check"></i>
-                                                </button>
-                                                <button class="btn btn-sm btn-danger" type="submit" name="aksi" value="tolak" title="Tolak">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                <?php endwhile; ?>
-                            <?php else: ?>
-                                <tr>
-                                    <td colspan="<?= 7 + count($kriteria_list) ?>" class="text-center text-muted">Tidak ada data hasil ranking.</td>
-                                </tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
+        <div class="main-card">
+            <div class="filter-bar mb-4">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+                    <form method="get" class="d-flex align-items-center flex-grow-1">
+                        <label class="form-label me-2 mb-0 fw-bold text-nowrap">Filter Posisi:</label>
+                        <select name="id_posisi" class="form-select" onchange="this.form.submit()">
+                            <option value="0">Tampilkan Semua Posisi</option>
+                            <?php mysqli_data_seek($posisi, 0); while($p = mysqli_fetch_assoc($posisi)): ?>
+                                <option value="<?= $p['id_posisi'] ?>" <?= $selected == $p['id_posisi'] ? "selected" : "" ?>>
+                                    <?= htmlspecialchars($p['nama_posisi']) ?>
+                                </option>
+                            <?php endwhile; ?>
+                        </select>
+                    </form>
+                    <div class="d-flex gap-2">
+                        <a href="cetak_validasi.php?id_posisi=<?= $selected ?>" target="_blank" class="btn btn-info text-white">
+                            <i class="fas fa-print me-2"></i>Cetak PDF
+                        </a>
+                        <a href="kelola_hrd.php" class="btn btn-secondary">
+                           <i class="fas fa-users-cog me-2"></i>Kelola HRD
+                        </a>
+                        <a class="btn btn-danger" href="../logout.php">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                        </a>
+                         <a href="ganti_password.php" class="btn btn-warning text-dark">
+        <i class="fas fa-key me-2"></i>Ganti Password
+    </a>
+                    </div>
                 </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Posisi</th>
+                            <th>Peringkat</th>
+                            <th class="text-start">Nama Calon</th>
+                            <?php foreach ($kriteria_list as $k): ?>
+                                <th><?= htmlspecialchars($k['nama_kriteria']); ?></th>
+                            <?php endforeach; ?>
+                            <th>Total Nilai</th>
+                            <th>Status</th>
+                            <th>Batch</th>
+                            <th>Aksi Validasi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (mysqli_num_rows($hasil) > 0): ?>
+                            <?php mysqli_data_seek($hasil, 0); while($r = mysqli_fetch_assoc($hasil)): ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($r['nama_posisi']); ?></td>
+                                    <td>
+                                        <span class="rank-badge rank-<?= $r['peringkat'] <= 3 ? $r['peringkat'] : 'default' ?>">
+                                            <?= $r['peringkat']; ?>
+                                        </span>
+                                    </td>
+                                    <td class="text-start"><?= htmlspecialchars($r['nama']); ?></td>
+                                    <?php foreach ($kriteria_list as $k):
+                                        $nilai = $nilai_per_calon[$r['id_calon']][$r['id_posisi']][$k['id_kriteria']] ?? '-';
+                                    ?>
+                                        <td><?= $nilai ?></td>
+                                    <?php endforeach; ?>
+                                    <td><strong><?= number_format($r['total_nilai'], 2); ?></strong></td>
+                                    <td>
+                                        <?php
+                                            $badge_class = 'bg-warning text-dark';
+                                            if ($r['validasi_owner'] == 'Disetujui') $badge_class = 'bg-success';
+                                            elseif ($r['validasi_owner'] == 'Ditolak') $badge_class = 'bg-danger';
+                                        ?>
+                                        <span class="badge rounded-pill <?= $badge_class; ?>">
+                                            <?= htmlspecialchars($r['validasi_owner']); ?>
+                                        </span>
+                                    </td>
+                                    <td><?= $r['nama_rekrutmen'] ? htmlspecialchars($r['nama_rekrutmen']) : '-' ?></td>
+                                    <td>
+                                        <form method="post" class="d-flex gap-2 justify-content-center">
+                                            <input type="hidden" name="id_hasil" value="<?= $r['id_hasil']; ?>" />
+                                            <button class="btn btn-sm btn-success rounded-pill" type="submit" name="aksi" value="setujui" title="Setujui">
+                                                <i class="fas fa-check"></i> Setujui
+                                            </button>
+                                            <button class="btn btn-sm btn-danger rounded-pill" type="submit" name="aksi" value="tolak" title="Tolak">
+                                                <i class="fas fa-times"></i> Tolak
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <?php endwhile; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="<?= 8 + count($kriteria_list) ?>" class="text-center text-muted p-5">
+                                    Tidak ada data hasil ranking untuk divalidasi.
+                                </td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <footer class="footer">
-        <p>&copy; <?= date('Y') ?> SPK Karyawan • Hak Cipta Dilindungi</p>
+        <p>&copy; <?= date('Y') ?> DWI BHAKTI OFFSET • Hak Cipta Dilindungi</p>
     </footer>
 </body>
 </html>

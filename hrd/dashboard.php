@@ -11,318 +11,281 @@ if (!isset($_SESSION['username'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DWI BHAKTI OFFSET</title>
+    <title>Dashboard - DWI BHAKTI OFFSET</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary-color: #0d6efd;
+            --primary-light: #4dabf7;
             --secondary-color: #6c757d;
-            --light-bg: #f0f2f5;
-            --card-bg: #fff;
-            --shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
-            --gradient-blue: linear-gradient(135deg, #0d6efd, #0056b3);
-            --gradient-red: linear-gradient(45deg, #dc3545, #c82333);
+            --light-bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-dark: #212529;
+            --text-light: #6c757d;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+            --gradient-primary: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
         }
+        
         body {
             background-color: var(--light-bg);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #333;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            color: var(--text-dark);
         }
+
         .header {
-            background: var(--gradient-blue);
+            background: var(--gradient-primary);
             color: #fff;
-            padding: 3rem 2rem;
+            padding: 2rem 2rem 5rem 2rem;
             text-align: center;
             position: relative;
-            overflow: hidden;
-            border-bottom-left-radius: 4rem;
-            border-bottom-right-radius: 4rem;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-            animation: slideDown 0.8s ease-in-out;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
         }
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: rgba(255, 255, 255, 0.05);
-            transform: rotate(30deg);
-            pointer-events: none;
-            z-index: 1;
-        }
-        .header h1, .header h4 {
-            position: relative;
-            z-index: 2;
-            margin: 0;
-        }
-        .header h1 {
+        
+        .header-content h1 {
             font-weight: 700;
-            font-size: 2.8rem;
-            letter-spacing: 1px;
+            font-size: 2.5rem;
             margin-bottom: 0.5rem;
         }
-        .header h4 {
-            font-weight: 400;
+        
+        .header-content h4 {
+            font-weight: 300;
             font-size: 1rem;
             opacity: 0.9;
         }
-        .container {
-            flex-grow: 1;
-            padding: 2rem 1rem;
-            max-width: 1200px;
-            margin-top: 0rem; /* Overlap with the header */
+        
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            overflow: hidden;
+            line-height: 0;
+            transform: rotate(180deg);
+        }
+
+        .wave svg {
+            position: relative;
+            display: block;
+            width: calc(100% + 1.3px);
+            height: 70px;
+        }
+
+        .wave .shape-fill {
+            fill: var(--light-bg);
+        }
+
+        .main-container {
+            margin-top: -3rem;
             position: relative;
             z-index: 10;
         }
-        .info-card {
-            background-color: var(--card-bg);
-            border-radius: 1.5rem;
+
+        .welcome-card {
+            background: var(--card-bg);
+            border: none;
+            border-radius: 1rem;
             padding: 2rem;
             box-shadow: var(--shadow);
-            animation: fadeIn 1s ease-in-out;
-        }
-        .info-card h2 {
-            font-weight: 700;
-            margin-bottom: 1rem;
-            color: var(--primary-color);
-        }
-        .info-card p strong {
-            color: var(--primary-color);
-        }
-        .info-card table {
-            margin-top: 1.5rem;
-            border-collapse: separate;
-            border-spacing: 0 0.5rem;
-        }
-        .info-card table th, .info-card table td {
             text-align: center;
-            border: none;
-            padding: 0.75rem;
+            margin-bottom: 2.5rem;
         }
-        .info-card table thead th {
-            border-bottom: 2px solid var(--primary-color);
+
+        .welcome-card h2 {
+            font-weight: 600;
+            color: var(--text-dark);
         }
-        .info-card table tbody tr {
-            background-color: var(--light-bg);
-            border-radius: 0.75rem;
-            transition: all 0.2s ease-in-out;
+
+        .welcome-card span {
+            color: var(--primary-color);
+            font-weight: 700;
         }
-        .info-card table tbody tr:hover {
-            background-color: #e2e6ea;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-        .info-card table tbody td:first-child {
-            border-top-left-radius: 0.75rem;
-            border-bottom-left-radius: 0.75rem;
-        }
-        .info-card table tbody td:last-child {
-            border-top-right-radius: 0.75rem;
-            border-bottom-right-radius: 0.75rem;
-        }
-        .menu-grid {
-            margin-top: 2rem;
-        }
+
         .card-menu {
             border: none;
-            border-radius: 1.5rem;
+            border-radius: 1rem;
             box-shadow: var(--shadow);
             background-color: var(--card-bg);
-            padding: 2.5rem;
+            padding: 2rem;
             text-align: center;
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            transition: transform 0.3s, box-shadow 0.3s;
             text-decoration: none;
-            color: inherit;
+            color: var(--text-dark);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 220px;
+            height: 100%;
         }
+        
         .card-menu:hover {
-            transform: translateY(-12px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-        }
-        .card-menu i {
-            font-size: 3.5rem;
-            margin-bottom: 1.5rem;
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
             color: var(--primary-color);
-            transition: transform 0.3s, color 0.3s;
         }
-        .card-menu:hover i {
-            transform: scale(1.1);
+        
+        .card-menu .icon-container {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #e6f7ff 0%, #d0ebff 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            transition: background 0.3s;
         }
-        .card-menu h3 {
-            font-weight: 600;
-            font-size: 1.35rem;
+
+        .card-menu:hover .icon-container {
+             background: var(--gradient-primary);
+        }
+
+        .card-menu i {
+            font-size: 2.5rem;
+            color: var(--primary-color);
             transition: color 0.3s;
         }
-        .card-menu:hover h3 {
-            color: var(--primary-color);
-        }
-        .logout-container {
-            text-align: center;
-            margin-top: 3rem;
-            animation: fadeIn 1.5s ease-in-out;
-        }
-        .btn-logout {
-            background: var(--gradient-red);
+
+        .card-menu:hover i {
             color: #fff;
-            border: none;
-            padding: 1rem 2.5rem;
-            border-radius: 2rem;
-            font-size: 1.1rem;
+        }
+        
+        .card-menu h3 {
             font-weight: 600;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
         }
-        .btn-logout:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+
+        .card-menu p {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            line-height: 1.5;
+        }
+        
+        .info-card {
+            background-color: var(--card-bg);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            height: 100%;
+        }
+
+        .info-card table {
+            margin-top: 1.5rem;
+        }
+
+        .info-card th {
+            background-color: var(--text-dark);
             color: #fff;
         }
+
         .footer {
             text-align: center;
             padding: 2rem;
             color: var(--secondary-color);
             font-size: 0.9rem;
-            margin-top: 4rem;
+            margin-top: 3rem;
         }
 
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .btn-logout {
+            border-radius: 50px;
+            font-weight: 600;
         }
-        @keyframes slideDown {
-            from { transform: translateY(-100px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
+        
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>DWI BHAKTI OFFSET</h1>
-        <h4>Jl. Otista Raya No.36, Ciputat, Kec. Ciputat, Kota Tangerang Selatan, Banten 15411.</h4>
-    </div>
+    <header class="header">
+        <div class="header-content">
+            <h1>DWI BHAKTI OFFSET</h1>
+            <h4>Sistem Pendukung Keputusan Perekrutan Karyawan</h4>
+        </div>
+        <div class="wave">
+            <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M985.66,92.83C906.67,72,823.78,31.84,743.84,14.19c-82.26-17.64-168.06-16.33-250.45.39-57.84,11.73-114,31.07-172,41.86A600.21,600.21,0,0,1,0,27.35V120H1200V95.8C1132.19,118.92,1055.71,111.31,985.66,92.83Z" class="shape-fill"></path>
+            </svg>
+        </div>
+    </header>
 
-    <div class="container">
-        <!-- Main content row for the two-column layout -->
+    <div class="container main-container">
+        
+        <div class="welcome-card">
+            <h2>Selamat Datang, <span><?php echo htmlspecialchars($_SESSION['username']); ?>!</span></h2>
+            <p class="text-muted">Pilih menu di bawah untuk mulai mengelola data perekrutan karyawan.</p>
+        </div>
+
         <div class="row g-4">
-            <!-- Left Column for Info Card -->
-            <div class="col-lg-6">
-                <div class="info-card mb-lg-0">
-                    <h2>Apa itu Metode Profile Matching?</h2>
-                    <p>Sistem Pendukung Keputusan (SPK) ini menggunakan metode <strong>Profile Matching</strong>. Metode ini bekerja dengan membandingkan profil setiap calon karyawan dengan profil ideal yang dibutuhkan oleh suatu posisi. Perbedaan (gap) antara profil calon dan profil ideal dihitung untuk menentukan seberapa cocok seorang kandidat.</p>
-                    <p>Semakin kecil nilai <em>gap</em> yang didapatkan, maka semakin tinggi nilai kandidat tersebut. Nilai akhir dari setiap calon karyawan dihitung berdasarkan nilai total dan nilai rangking yang akan dihasilkan pada halaman Ranking. Hal ini membantu dalam pengambilan keputusan yang lebih objektif dan akurat.</p>
-                    
-                    <div class="table-responsive">
-                        <h4 class="mt-4 mb-3 text-center">Tabel Nilai Bobot GAP</h4>
-                        <table class="table rounded">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th scope="col">Selisih (Gap)</th>
-                                    <th scope="col">Nilai Bobot</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>0</td>
-                                    <td>5.0</td>
-                                </tr>
-                                <tr>
-                                    <td>1</td>
-                                    <td>4.5</td>
-                                </tr>
-                                <tr>
-                                    <td>-1</td>
-                                    <td>4.0</td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>3.5</td>
-                                </tr>
-                                <tr>
-                                    <td>-2</td>
-                                    <td>3.0</td>
-                                </tr>
-                                <tr>
-                                    <td>3</td>
-                                    <td>2.5</td>
-                                </tr>
-                                <tr>
-                                    <td>-3</td>
-                                    <td>2.0</td>
-                                </tr>
-                                <tr>
-                                    <td>4</td>
-                                    <td>1.5</td>
-                                </tr>
-                                <tr>
-                                    <td>-4</td>
-                                    <td>1.0</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Column for Menu Cards -->
-            <div class="col-lg-6">
-                <div class="row row-cols-1 row-cols-md-2 g-4 menu-grid">
-                    <div class="col">
-                        <a class="card-menu">
-                             <p>Selamat Datang, <?php echo htmlspecialchars($_SESSION['username']); ?>! Pilih menu di bawah untuk melanjutkan.</p>
-                        </a>
-                    </div>
-                    <!-- Calon Karyawan Card -->
+            <div class="col-lg-8">
+                <div class="row row-cols-1 row-cols-md-2 g-4">
                     <div class="col">
                         <a href="calon.php" class="card-menu">
-                            <i class="fas fa-user-tie"></i>
+                            <div class="icon-container"><i class="fas fa-user-plus"></i></div>
                             <h3>Calon Karyawan</h3>
+                            <p>Kelola data pelamar dan berikan penilaian berdasarkan kriteria.</p>
                         </a>
                     </div>
-                    <!-- Ranking Card -->
                     <div class="col">
                         <a href="ranking.php" class="card-menu">
-                            <i class="fas fa-trophy"></i>
-                            <h3>Ranking</h3>
+                            <div class="icon-container"><i class="fas fa-trophy"></i></div>
+                            <h3>Hasil Ranking</h3>
+                            <p>Lihat hasil perangkingan kandidat berdasarkan metode Profile Matching.</p>
                         </a>
                     </div>
-                    <!-- Nilai Ideal Card -->
                     <div class="col">
                         <a href="/spk_karyawan/ideal.php" class="card-menu">
-                            <i class="fas fa-cogs"></i>
-                            <h3>Nilai Ideal</h3>
+                            <div class="icon-container"><i class="fas fa-cogs"></i></div>
+                            <h3>Profil Ideal</h3>
+                            <p>Atur dan sesuaikan nilai standar yang dibutuhkan untuk setiap posisi.</p>
                         </a>
                     </div>
                     <div class="col">
                         <a href="riwayat.php" class="card-menu">
-                            <i class="fas fa-history"></i></i>
-                            <h3>Riwayat</h3>
+                            <div class="icon-container"><i class="fas fa-history"></i></div>
+                            <h3>Riwayat Ranking</h3>
+                            <p>Akses arsip dan laporan hasil perangkingan dari periode sebelumnya.</p>
                         </a>
                     </div>
-                    <div class="logout-container">
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                 <div class="info-card">
+                    <h4 class="mb-3">Tentang Metode</h4>
+                    <p class="text-muted small">Metode <strong>Profile Matching</strong> membandingkan profil kompetensi calon dengan profil ideal posisi untuk menemukan kandidat terbaik.</p>
+                    
+                    <hr class="my-4">
+
+                    <h4 class="mb-3 text-center">Tabel Bobot GAP</h4>
+                    <table class="table table-sm table-bordered text-center">
+                        <thead class="thead-dark">
+                            <tr><th>Selisih</th><th>Bobot</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>0</td><td>5.0</td></tr>
+                            <tr><td>1</td><td>4.5</td></tr>
+                            <tr><td>-1</td><td>4.0</td></tr>
+                            <tr><td>2</td><td>3.5</td></tr>
+                            <tr><td>-2</td><td>3.0</td></tr>
+                            <tr><td>3</td><td>2.5</td></tr>
+                            <tr><td>-3</td><td>2.0</td></tr>
+                            <tr><td>4</td><td>1.5</td></tr>
+                            <tr><td>-4</td><td>1.0</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-5">
             <a href="/spk_karyawan/logout.php" class="btn btn-danger btn-lg btn-logout">
                 <i class="fas fa-sign-out-alt me-2"></i>Logout
             </a>
         </div>
-                </div>
-            </div>
-        </div>        
     </div>
 
     <footer class="footer">
-        <p>&copy; 2023 SPK Karyawan • Hak Cipta Dilindungi</p>
+        <p>&copy; <?= date("Y") ?> DWI BHAKTI OFFSET • Sistem Pendukung Keputusan Karyawan</p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
